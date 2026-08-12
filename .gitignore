@@ -1,0 +1,122 @@
+# Environment configuration
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Model Files and Weights
+*.safetensors
+*.pth
+*.pt
+*.ckpt
+models/
+weights/
+checkpoints/
+*.bin
+
+# Model Repositories
+repos/SCAIL-2/
+repos/Wan2.2/
+
+# Data and Outputs
+outputs/
+logs/
+uploads/
+downloads/
+temp/
+tmp/
+
+# Video Files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.flv
+*.wmv
+*.m3u8
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.code-workspace
+.vscode-server/
+
+# OS
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Documentation
+docs/_build/
+site/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Node modules (if using any JS tools)
+node_modules/
+npm-debug.log
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Miscellaneous
+.DS_Store
+*.log
+*.pot
+*.mo
+.env.*.swp
+.coverage
+.cache/

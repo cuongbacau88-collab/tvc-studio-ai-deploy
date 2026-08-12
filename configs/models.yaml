@@ -1,0 +1,363 @@
+# TVC Studio AI - Models Configuration Manifest
+# This file defines all available models, their installation paths, requirements, and resources.
+# Each model has its own isolated Python environment to avoid conflicts.
+
+# ============================================================================
+# SYSTEM REQUIREMENTS & ERROR CODES
+# ============================================================================
+
+gpu_requirements:
+  min_compute_capability: 7.0  # Minimum GPU Compute Capability (Tesla V100+, RTX 20 series+)
+  torch_min_version: "2.4.0"  # Minimum PyTorch version (for Wan2.2)
+  cuda_min_version: "11.8"    # Minimum CUDA version
+  recommended_vram_gb: 24      # Recommended VRAM for optimal performance
+  multi_gpu_support:
+    enabled: true
+    min_gpus: 2
+    methods: ["FSDP", "DeepSpeed Ulysses"]
+
+multi_gpu_support:
+  wan22-animate:
+    method: "FSDP + DeepSpeed Ulysses"
+    min_gpus: 2
+    recommended_gpus: 8
+    memory_per_gpu_gb: 24  # Estimated for Ulysses-8 parallelism
+    note: "Sequence parallelism with Ulysses: each GPU handles 1/8 of sequence"
+  qwen-image-edit:
+    method: "DeepSpeed Ulysses"
+    min_gpus: 2
+    recommended_gpus: 4
+    memory_per_gpu_gb: 6  # With Ulysses-4 parallelism
+
+error_codes:
+  unavailable_insufficient_gpu: "GPU VRAM insufficient for this model (see docs/gpu-strategies.md)"
+  cuda_version_mismatch: "PyTorch CUDA version does not match system CUDA"
+  gpu_compute_capability_low: "GPU Compute Capability below 7.0 (not supported)"
+  no_gpu_detected: "No NVIDIA GPU detected on this system"
+  model_not_installed: "Model not found (run install-model.sh to install)"
+  weights_not_found: "Model weights not downloaded (run download-model.sh)"
+  inference_timeout: "Model inference exceeded time limit"
+  inference_crash: "Model process crashed during inference"
+
+models:
+  # ============================================================================
+  # SECTION 1: Video Generation Models
+  # ============================================================================
+
+  scail2:
+    enabled: true
+    name: "SCAIL-2"
+    description: "Semantic Control Image-to-Video - converts images to videos with semantic control"
+    repo_url: "https://github.com/zai-org/SCAIL-2.git"
+    repo_branch: "main"
+    install_dir: "repos/SCAIL-2"
+    venv_dir: "venv/scail2"
+    weights_dir: "models/scail2"
+    huggingface_model: "zai-org/SCAIL-2"
+    task_type: "video-generation"
+    min_vram_gb: 6
+    recommended_vram_gb: 8
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - torchvision
+      - torchaudio
+    notes: "Requires GPU with compute capability 7.0+"
+
+  wan22-animate:
+    enabled: true
+    name: "Wan2.2-Animate-14B"
+    description: "Advanced video generation and animation model"
+    repo_url: "https://github.com/Wan-Video/Wan2.2.git"
+    repo_branch: "main"
+    install_dir: "repos/Wan2.2"
+    venv_dir: "venv/wan22"
+    weights_dir: "models/wan22-animate"
+    huggingface_model: "Wan-AI/Wan2.2-Animate-14B"
+    task_type: "video-generation"
+    min_vram_gb: 8
+    recommended_vram_gb: 16
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - torchvision
+      - torchaudio
+    notes: "Large model, requires 14GB+ disk space"
+
+  # ============================================================================
+  # SECTION 2: Image Editing & Transformation
+  # ============================================================================
+
+  fashn-vton:
+    enabled: true
+    name: "Fashn Virtual Try-On 1.5"
+    description: "Virtual try-on for clothing - allows trying different outfits on people"
+    repo_url: "https://github.com/fashn-AI/fashn-vton-1.5.git"
+    repo_branch: "main"
+    install_dir: "repos/fashn-vton-1.5"
+    venv_dir: "venv/fashn-vton"
+    weights_dir: "models/fashn-vton"
+    huggingface_model: "fashn-ai/fashn-vton-1.5"
+    task_type: "image-editing"
+    min_vram_gb: 4
+    recommended_vram_gb: 6
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - torchvision
+    notes: "Lightweight model suitable for real-time inference"
+
+  qwen-image-edit:
+    enabled: true
+    name: "Qwen-Image-Edit-2511"
+    description: "Scene and background editing with text prompts and reference images"
+    repo_url: "https://github.com/QwenLM/Qwen-Image.git"
+    repo_branch: "main"
+    install_dir: "repos/Qwen-Image"
+    venv_dir: "venv/qwen-image-edit"
+    weights_dir: "models/qwen-image-edit"
+    huggingface_model: "Qwen/Qwen-Image-Edit-2511"
+    task_type: "image-editing"
+    min_vram_gb: 8
+    recommended_vram_gb: 12
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - transformers
+    dependencies:
+      - birefnet  # Optional: for background removal
+      - ic-light  # Optional: for lighting
+    notes: "Supports optional pipeline with BiRefNet and IC-Light"
+
+  birefnet:
+    enabled: true
+    name: "BiRefNet"
+    description: "Background removal using bilateral reference filtering"
+    repo_url: "https://github.com/ZhengPeng7/BiRefNet.git"
+    repo_branch: "main"
+    install_dir: "repos/BiRefNet"
+    venv_dir: "venv/qwen-image-edit"  # Share with Qwen for scene editing pipeline
+    weights_dir: "models/birefnet"
+    huggingface_model: "ZhengPeng7/BiRefNet"
+    task_type: "image-preprocessing"
+    min_vram_gb: 2
+    recommended_vram_gb: 4
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - torchvision
+    usage_context: "optional-pipeline-step"
+    notes: "Used in scene editing pipeline for background separation"
+
+  ic-light:
+    enabled: true
+    name: "IC-Light"
+    description: "Synchronized lighting adjustment for images"
+    repo_url: "https://github.com/lllyasviel/IC-Light.git"
+    repo_branch: "main"
+    install_dir: "repos/IC-Light"
+    venv_dir: "venv/qwen-image-edit"  # Share with Qwen for scene editing pipeline
+    weights_dir: "models/ic-light"
+    huggingface_model: "lllyasviel/ic-light-unet"
+    task_type: "image-enhancement"
+    min_vram_gb: 3
+    recommended_vram_gb: 6
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - diffusers
+    usage_context: "optional-pipeline-step"
+    notes: "Completes scene editing pipeline by synchronizing lighting"
+
+  # ============================================================================
+  # SECTION 3: Image & Video Enhancement / Super-Resolution
+  # ============================================================================
+
+  seedvr2:
+    enabled: true
+    name: "SeedVR2"
+    description: "High-quality video restoration and super-resolution"
+    repo_url: "https://github.com/IceClear/SeedVR2.git"
+    repo_branch: "main"
+    install_dir: "repos/SeedVR2"
+    venv_dir: "venv/seedvr2"
+    weights_dir: "models/seedvr2"
+    huggingface_model: "IceClear/SeedVR2"
+    task_type: "video-enhancement"
+    min_vram_gb: 6
+    recommended_vram_gb: 12
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - torchvision
+    notes: "Optimal for high-quality restoration; slower than Real-ESRGAN"
+
+  realesrgan:
+    enabled: true
+    name: "Real-ESRGAN"
+    description: "Fast image and video upscaling (2x/4x) with face enhancement"
+    repo_url: "https://github.com/xinntao/Real-ESRGAN.git"
+    repo_branch: "master"
+    install_dir: "repos/Real-ESRGAN"
+    venv_dir: "venv/realesrgan"
+    weights_dir: "models/realesrgan"
+    huggingface_model: "xinntao/Real-ESRGAN"
+    task_type: "image-enhancement"
+    min_vram_gb: 3
+    recommended_vram_gb: 6
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - torchvision
+    notes: "Fast 2x/4x upscaling; optimized for speed over quality"
+
+  codeformer:
+    enabled: true
+    name: "CodeFormer"
+    description: "Blind face restoration using code guidance"
+    repo_url: "https://github.com/sczhou/CodeFormer.git"
+    repo_branch: "main"
+    install_dir: "repos/CodeFormer"
+    venv_dir: "venv/codeformer"
+    weights_dir: "models/codeformer"
+    huggingface_model: "sczhou/codeformer"
+    task_type: "image-restoration"
+    min_vram_gb: 2
+    recommended_vram_gb: 4
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks:
+      - torch
+      - torchvision
+    default_fidelity: 0.85  # Limit face identity change (0.0-1.0)
+    notes: "Face restoration only; fidelity 0.85 default to preserve identity"
+
+# ============================================================================
+# Installation Groups
+# ============================================================================
+# These groups help manage related models that may be installed together
+
+installation_groups:
+  video_generation:
+    models: ["scail2", "wan22-animate"]
+    description: "Core video generation pipeline"
+    min_vram_gb: 14
+
+  clothing_try_on:
+    models: ["fashn-vton"]
+    description: "Virtual try-on for garments"
+    min_vram_gb: 4
+
+  scene_editing_basic:
+    models: ["qwen-image-edit"]
+    description: "Scene editing with prompts"
+    min_vram_gb: 8
+
+  scene_editing_advanced:
+    models: ["qwen-image-edit", "birefnet", "ic-light"]
+    description: "Scene editing with background separation and lighting"
+    min_vram_gb: 13
+
+  enhancement_fast:
+    models: ["realesrgan"]
+    description: "Fast image upscaling"
+    min_vram_gb: 3
+
+  enhancement_quality:
+    models: ["seedvr2"]
+    description: "High-quality video restoration"
+    min_vram_gb: 6
+
+  face_restoration:
+    models: ["codeformer"]
+    description: "Face restoration and enhancement"
+    min_vram_gb: 2
+
+  full_pipeline:
+    models:
+      - "scail2"
+      - "wan22-animate"
+      - "fashn-vton"
+      - "qwen-image-edit"
+      - "birefnet"
+      - "ic-light"
+      - "seedvr2"
+      - "realesrgan"
+      - "codeformer"
+    description: "All available models (requires significant resources)"
+    min_vram_gb: 24
+
+# ============================================================================
+# Task Types (for API routing)
+# ============================================================================
+task_types:
+  video-generation:
+    description: "Generate videos from images or prompts"
+    gpu_required: true
+    supports_batch: false  # Process one at a time for video
+
+  image-editing:
+    description: "Edit images with prompts or references"
+    gpu_required: true
+    supports_batch: false
+
+  image-enhancement:
+    description: "Upscale or restore image quality"
+    gpu_required: true
+    supports_batch: true
+
+  image-restoration:
+    description: "Restore specific aspects (faces, details)"
+    gpu_required: true
+    supports_batch: true
+
+  image-preprocessing:
+    description: "Prepare images for other tasks"
+    gpu_required: true
+    supports_batch: true
+
+# ============================================================================
+# GPU Resource Allocation Guidelines
+# ============================================================================
+# Note: These are estimates; actual usage depends on batch size and image resolution
+
+resource_notes: |
+  GPU Resource Usage (Estimated):
+
+  Video Generation:
+  - SCAIL-2: 6GB (1080p), 8GB (2K)
+  - Wan2.2-Animate: 8-16GB (depends on video length)
+
+  Clothing Try-On:
+  - Fashn-VTON: 4GB (1024x768)
+
+  Scene Editing:
+  - Qwen-Image-Edit: 8-12GB
+  - BiRefNet: 2-4GB
+  - IC-Light: 3-6GB
+
+  Enhancement:
+  - SeedVR2: 6-12GB (video frame size dependent)
+  - Real-ESRGAN: 3-6GB (2x-4x upscale)
+  - CodeFormer: 2-4GB (face restoration)
+
+  Concurrent GPU Tasks:
+  API Queue should serialize tasks to avoid GPU OOM.
+  Each task type runs exclusively; queue waits for completion.
