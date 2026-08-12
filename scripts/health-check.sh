@@ -248,7 +248,7 @@ if [[ $# -gt 0 ]]; then
     check_model "$MODEL_NAME"
 else
     # Check all models
-    log_info "Checking all configured models..."
+    log_header "Checking all configured models..."
 
     for model in scail2 wan22-animate fashn-vton qwen-image-edit birefnet ic-light seedvr2 realesrgan codeformer; do
         if grep -q "^  $model:" "$MODELS_CONFIG"; then
