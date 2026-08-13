@@ -36,7 +36,7 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         queue = SequentialGPUQueue(store)
         adapter = FakeAdapter(ModelSpec("wan22-animate", {}), Path("."))
         worker = GPUWorker(queue, {"wan22-animate": adapter}, Path("outputs"), 1)
-        jobs = [Job(JobRequest("prompt-video", "wan22-animate", {"prompt": str(i)}, {})) for i in range(3)]
+        jobs = [Job(JobRequest("owner", f"job-{i}", "prompt-video", "wan22-animate", {"prompt": str(i)}, {})) for i in range(3)]
         for job in jobs:
             await queue.submit(job)
         worker.start()

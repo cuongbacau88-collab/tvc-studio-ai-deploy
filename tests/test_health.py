@@ -41,6 +41,7 @@ class HealthEndpointTests(unittest.TestCase):
 
     def test_insufficient_gpu_is_stable_api_error(self) -> None:
         status, body = request(self.app, "POST", "/v1/jobs", {
+            "owner_id": "owner-1", "client_job_id": "health-job",
             "operation": "prompt-video", "model_id": "wan22-animate",
             "inputs": {"prompt": "unit test"}, "parameters": {},
         })

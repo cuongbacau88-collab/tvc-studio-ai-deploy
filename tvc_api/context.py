@@ -16,6 +16,7 @@ from .jobs import JobStore
 from .queue import SequentialGPUQueue
 from .registry import ModelRegistry
 from .worker import GPUWorker
+from .uploads import UploadStore
 
 
 @dataclass
@@ -26,6 +27,7 @@ class AppContext:
     queue: SequentialGPUQueue
     worker: GPUWorker
     gpu_probe: Callable[[int], GPUStatus]
+    uploads: UploadStore
 
     @classmethod
     def build(cls, settings: Settings, gpu_probe_fn: Callable[[int], GPUStatus] = probe_gpu) -> "AppContext":
@@ -36,7 +38,8 @@ class AppContext:
         queue = SequentialGPUQueue(store, settings.max_queue_size)
         adapters = build_adapters(registry, settings.repo_root)
         worker = GPUWorker(queue, adapters, settings.output_dir, settings.gpu_task_timeout_seconds)
-        context = cls(settings, registry, store, queue, worker, gpu_probe_fn)
+        uploads = UploadStore(settings.upload_dir, settings.max_upload_mb)
+        context = cls(settings, registry, store, queue, worker, gpu_probe_fn, uploads)
         context.adapters = adapters
         return context
 

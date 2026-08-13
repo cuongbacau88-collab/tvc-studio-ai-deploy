@@ -72,8 +72,8 @@ class VideoIntegrationValidationTests(unittest.TestCase):
 class VideoQueueRoutingTests(unittest.IsolatedAsyncioTestCase):
     async def test_h3_and_wan_use_shared_priority_queue(self) -> None:
         queue = SequentialGPUQueue(JobStore())
-        wan = Job(JobRequest("text_to_video", "wan22_ti2v", {"prompt": "x"}, {"task_type": "text_to_video"}))
-        h3 = Job(JobRequest("reference_to_video", "minimax_h3", {"reference_images": ["x"]}, {"task_type": "reference_to_video"}))
+        wan = Job(JobRequest("owner", "wan", "text_to_video", "wan22_ti2v", {"prompt": "x"}, {"task_type": "text_to_video"}))
+        h3 = Job(JobRequest("owner", "h3", "reference_to_video", "minimax_h3", {"reference_images": ["x"]}, {"task_type": "reference_to_video"}))
         await queue.submit(wan)
         await queue.submit(h3)
         self.assertIs(await queue.next(), h3)

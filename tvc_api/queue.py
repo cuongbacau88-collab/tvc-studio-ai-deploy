@@ -16,11 +16,15 @@ class SequentialGPUQueue:
         self._sequence = count()
         self.active_job_id: str | None = None
 
-    async def submit(self, job: Job) -> None:
+    async def submit(self, job: Job) -> tuple[Job, bool]:
+        stored, created = self.store.add(job)
+        if not created:
+            return stored, False
         if self._queue.full():
+            self.store.remove(job)
             raise APIError("queue_full", "GPU task queue is full", 503)
-        self.store.add(job)
         await self._queue.put((-job.request.priority, next(self._sequence), job.id))
+        return job, True
 
     async def next(self) -> Job:
         while True:

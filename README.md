@@ -727,3 +727,19 @@ nvidia-smi -l 1  # Refresh every 1 second
 
 **Last Updated**: 2026-08-13
 **Maintained for Ubuntu 22.04 LTS and 24.04 LTS**
+
+
+## Phase 4A authenticated GPU API
+
+All non-health API calls use server-to-server authentication with the
+Authorization Bearer header and X-Owner-ID. The service token must stay on trusted
+servers and must never be sent to browser JavaScript or HTML.
+
+Protected endpoints include uploads, jobs, cancellation, results, output downloads,
+queue inspection, and model discovery. POST /v1/uploads accepts a raw request body
+with X-Filename and an allowed image, video, or audio Content-Type. POST /v1/jobs
+requires non-empty owner_id and client_job_id, and owner_id must match X-Owner-ID.
+
+Reusing the same owner_id and client_job_id returns the existing in-memory job and
+does not enqueue it again. Uploads, jobs, cancellation, result metadata, and output
+downloads are owner-isolated. Restart persistence is intentionally deferred.

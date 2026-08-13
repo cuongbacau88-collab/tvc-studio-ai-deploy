@@ -35,6 +35,8 @@ OPERATION_MODELS = {
 
 @dataclass(frozen=True)
 class JobRequest:
+    owner_id: str
+    client_job_id: str
     operation: str
     model_id: str
     inputs: dict[str, Any]
@@ -48,6 +50,12 @@ class JobRequest:
     def parse(cls, value: object) -> "JobRequest":
         if not isinstance(value, dict):
             raise APIError("validation_error", "Request body must be a JSON object", 422)
+        owner_id = value.get("owner_id")
+        client_job_id = value.get("client_job_id")
+        if not isinstance(owner_id, str) or not owner_id.strip():
+            raise APIError("validation_error", "owner_id must be a non-empty string", 422)
+        if not isinstance(client_job_id, str) or not client_job_id.strip():
+            raise APIError("validation_error", "client_job_id must be a non-empty string", 422)
         operation = value.get("operation")
         model_id = value.get("model_id")
         if operation not in OPERATION_PRIORITIES:
@@ -63,5 +71,5 @@ class JobRequest:
         typed_operations = {"text_to_video", "image_to_video", "first_last_frame_to_video", "reference_to_video"}
         if operation in typed_operations and parameters.get("task_type") != operation:
             raise APIError("validation_error", "parameters.task_type must match operation", 422)
-        return cls(operation, model_id, inputs, parameters)
+        return cls(owner_id.strip(), client_job_id.strip(), operation, model_id, inputs, parameters)
 

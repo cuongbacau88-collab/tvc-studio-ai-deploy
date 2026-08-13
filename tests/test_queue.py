@@ -6,7 +6,7 @@ from tvc_api.schemas import JobRequest
 
 
 def make_job(operation: str, model: str) -> Job:
-    return Job(JobRequest(operation, model, {"input": "test"}, {}))
+    return Job(JobRequest("owner", operation + model, operation, model, {"input": "test"}, {}))
 
 
 class QueueTests(unittest.IsolatedAsyncioTestCase):
