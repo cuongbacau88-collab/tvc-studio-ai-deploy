@@ -88,6 +88,57 @@ models:
       - torchaudio
     notes: "Large model, requires 14GB+ disk space"
 
+  wan22_ti2v:
+    enabled: true
+    name: "Wan2.2 Text/Image-to-Video"
+    description: "Dedicated Wan2.2 text-to-video and image-to-video integration"
+    repo_url: "https://github.com/Wan-Video/Wan2.2.git"
+    repo_branch: "main"
+    install_dir: "repos/Wan2.2"
+    venv_dir: "venv/wan22"
+    weights_dir: "models/wan22_ti2v"
+    huggingface_model: "Wan-AI/Wan2.2-TI2V-5B"
+    task_type: "video-generation"
+    task_types: ["text_to_video", "image_to_video"]
+    min_vram_gb: 8
+    recommended_vram_gb: 16
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks: ["torch", "torchvision", "torchaudio"]
+    notes: "Separate TI2V adapter; inference entrypoint must be explicitly configured and verified"
+
+  minimax_h3:
+    enabled: true
+    name: "MiniMax H3"
+    description: "MiniMax H3 video generation registry integration"
+    repo_url: "https://github.com/MiniMax-AI/H3.git"
+    repo_branch: "main"
+    install_dir: "repos/MiniMax-H3"
+    venv_dir: "venv/minimax-h3"
+    weights_dir: "models/minimax-h3"
+    huggingface_model: "MiniMaxAI/H3"
+    task_type: "video-generation"
+    task_types: ["text_to_video", "image_to_video", "first_last_frame_to_video", "reference_to_video"]
+    variants:
+      fl2va:
+        supported_inputs: ["prompt", "first_frame", "last_frame"]
+      ref2va:
+        supported_references: ["images", "videos", "audio", "mixed_multimodal"]
+    capabilities:
+      native_audio: true
+      aspect_ratios: ["9:16", "16:9"]
+      duration_seconds: {min: 4, max: 15}
+      h3_context_ir: {mode: "hosted_api_optional"}
+      h3_regenerate_2k: {mode: "hosted_api_optional"}
+    min_vram_gb: 12
+    recommended_vram_gb: 24
+    download_enabled: false
+    requires_flashattention: false
+    python_version: "3.11"
+    frameworks: ["torch"]
+    notes: "Hosted optional capabilities are metadata only; no hosted API is implemented"
+
   # ============================================================================
   # SECTION 2: Image Editing & Transformation
   # ============================================================================
