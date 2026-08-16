@@ -1,0 +1,366 @@
+{
+  "version": 1,
+  "workflows": {
+    "upscale_realesrgan": {
+      "service": "image_upscale",
+      "file": "workflows/upscale_realesrgan_api.json",
+      "default": true,
+      "inputs": {
+        "image": {
+          "node_id": "6",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        }
+      },
+      "parameters": {},
+      "outputs": [
+        {
+          "node_id": "10",
+          "type": "image"
+        }
+      ],
+      "models": [
+        "RealESRGAN_x4.pth"
+      ],
+      "custom_nodes": []
+    },
+    "outfit_flux2_klein": {
+      "service": "outfit_change",
+      "file": "workflows/outfit_flux2_klein_api.json",
+      "default": true,
+      "inputs": {
+        "image": {
+          "node_id": "132",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "garment_image": {
+          "node_id": "134",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "prompt": {
+          "node_id": "137:113",
+          "field": "text",
+          "kind": "text",
+          "required": false
+        }
+      },
+      "parameters": {
+        "seed": {
+          "node_id": "137:105",
+          "field": "noise_seed"
+        }
+      },
+      "outputs": [
+        {
+          "node_id": "133",
+          "type": "image"
+        }
+      ],
+      "models": [
+        "flux-2-klein-base-4b-fp8.safetensors",
+        "qwen_3_4b.safetensors",
+        "full_encoder_small_decoder.safetensors"
+      ],
+      "custom_nodes": [
+        "Flux2Scheduler",
+        "EmptyFlux2LatentImage",
+        "ReferenceLatent"
+      ]
+    },
+    "background_flux2_klein": {
+      "service": "background_change",
+      "file": "workflows/background_flux2_klein_api.json",
+      "default": true,
+      "inputs": {
+        "image": {
+          "node_id": "76",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "prompt": {
+          "node_id": "75:74",
+          "field": "text",
+          "kind": "text",
+          "required": true
+        }
+      },
+      "parameters": {
+        "seed": {
+          "node_id": "75:73",
+          "field": "noise_seed"
+        }
+      },
+      "outputs": [
+        {
+          "node_id": "9",
+          "type": "image"
+        }
+      ],
+      "models": [
+        "flux-2-klein-base-4b-fp8.safetensors",
+        "qwen_3_4b.safetensors",
+        "full_encoder_small_decoder.safetensors"
+      ],
+      "custom_nodes": [
+        "Flux2Scheduler",
+        "EmptyFlux2LatentImage",
+        "ReferenceLatent"
+      ]
+    },
+    "motion_scail2": {
+      "service": "motion",
+      "file": "workflows/motion_scail2_api.json",
+      "default": true,
+      "inputs": {
+        "image": {
+          "node_id": "30",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "video": {
+          "node_id": "155",
+          "field": "file",
+          "kind": "upload",
+          "required": true
+        },
+        "prompt": {
+          "node_id": "213:3",
+          "field": "text",
+          "kind": "text",
+          "required": false
+        }
+      },
+      "parameters": {
+        "seed": {
+          "node_id": "213:19",
+          "field": "noise_seed"
+        },
+        "width": {
+          "node_id": "213:178",
+          "field": "value"
+        },
+        "height": {
+          "node_id": "213:179",
+          "field": "value"
+        }
+      },
+      "mirrors": [
+        {
+          "source": "prompt",
+          "node_id": "262:258",
+          "field": "text"
+        },
+        {
+          "source": "seed",
+          "node_id": "262:227",
+          "field": "noise_seed"
+        },
+        {
+          "source": "width",
+          "node_id": "262:236",
+          "field": "value"
+        },
+        {
+          "source": "height",
+          "node_id": "262:237",
+          "field": "value"
+        }
+      ],
+      "outputs": [
+        {
+          "node_id": "271",
+          "type": "video"
+        }
+      ],
+      "models": [
+        "lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors",
+        "Wan2_1_VAE_bf16.safetensors",
+        "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+        "clip_vision_h.safetensors",
+        "wan2.1_14B_SCAIL_2_fp16.safetensors",
+        "sam3.1_multiplex_fp16.safetensors",
+        "wan2.1_SCAIL_2_DPO_lora_bf16.safetensors"
+      ],
+      "custom_nodes": [
+        "LoadVideo",
+        "SaveVideo",
+        "WanSCAILToVideo",
+        "SAM3_VideoTrack",
+        "SCAIL2ColoredMask",
+        "ComfyMathExpression",
+        "ComfySwitchNode",
+        "ColorTransfer"
+      ]
+    },
+    "video_h3_i2v": {
+      "service": "video_generation",
+      "mode": "reference_image",
+      "file": "workflows/video_h3_i2v_api.json",
+      "default": true,
+      "inputs": {
+        "image": {
+          "node_id": "114",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "prompt": {
+          "node_id": "105:104",
+          "field": "prompt",
+          "kind": "text",
+          "required": false
+        }
+      },
+      "parameters": {
+        "duration_seconds": {
+          "node_id": "105:111",
+          "field": "value",
+          "default": 15
+        },
+        "seed": {
+          "node_id": "105:15",
+          "field": "noise_seed"
+        },
+        "aspect_ratio": {
+          "node_id": "115",
+          "field": "aspect_ratio"
+        }
+      },
+      "outputs": [
+        {
+          "node_id": "92",
+          "type": "video"
+        }
+      ],
+      "models": [
+        "minimax_h3_video_vae_fp16.safetensors",
+        "minimax_h3_audio_vae_fp32.safetensors",
+        "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+      ],
+      "custom_nodes": [
+        "SaveVideo",
+        "ResolutionSelector",
+        "MiniMaxH3ImageToVideo",
+        "VAEDecodeAudio",
+        "ComfyMathExpression"
+      ]
+    },
+    "video_h3_first_last": {
+      "service": "video_generation",
+      "mode": "first_last",
+      "file": "workflows/video_h3_first_last_api.json",
+      "default": true,
+      "inputs": {
+        "first_frame": {
+          "node_id": "15",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "last_frame": {
+          "node_id": "16",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "prompt": {
+          "node_id": "28",
+          "field": "model.prompt",
+          "kind": "text",
+          "required": false
+        }
+      },
+      "parameters": {
+        "duration_seconds": {
+          "node_id": "28",
+          "field": "model.duration",
+          "default": 15
+        },
+        "seed": {
+          "node_id": "28",
+          "field": "seed"
+        },
+        "resolution": {
+          "node_id": "28",
+          "field": "model.resolution"
+        }
+      },
+      "outputs": [
+        {
+          "node_id": "26",
+          "type": "video"
+        }
+      ],
+      "models": [],
+      "custom_nodes": [
+        "SaveVideo",
+        "MinimaxHailuo03FirstLastFrameNode"
+      ]
+    },
+    "backup_wan22_fun_inpaint": {
+      "service": "backup_test",
+      "file": "workflows/backup_wan22_fun_inpaint_api.json",
+      "default": false,
+      "inputs": {
+        "first_frame": {
+          "node_id": "110",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "last_frame": {
+          "node_id": "112",
+          "field": "image",
+          "kind": "upload",
+          "required": true
+        },
+        "prompt": {
+          "node_id": "99",
+          "field": "text",
+          "kind": "text",
+          "required": false
+        }
+      },
+      "parameters": {
+        "seed": {
+          "node_id": "96",
+          "field": "noise_seed"
+        },
+        "width": {
+          "node_id": "111",
+          "field": "width"
+        },
+        "height": {
+          "node_id": "111",
+          "field": "height"
+        }
+      },
+      "outputs": [
+        {
+          "node_id": "158",
+          "type": "video"
+        }
+      ],
+      "models": [
+        "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+        "wan_2.1_vae.safetensors",
+        "wan2.2_fun_inpaint_high_noise_14B_fp8_scaled.safetensors",
+        "wan2.2_fun_inpaint_low_noise_14B_fp8_scaled.safetensors",
+        "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+        "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"
+      ],
+      "custom_nodes": [
+        "SaveVideo",
+        "WanFunInpaintToVideo"
+      ]
+    }
+  }
+}

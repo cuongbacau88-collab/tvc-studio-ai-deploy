@@ -42,9 +42,17 @@ class Phase4ATests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name)
-        source_config = Path(__file__).parents[1] / "configs" / "models.yaml"
+        source_root = Path(__file__).parents[1]
+        source_config = source_root / "configs" / "models.yaml"
         (root / "configs").mkdir()
         (root / "configs" / "models.yaml").write_bytes(source_config.read_bytes())
+        (root / "configs" / "model_manifest.json").write_bytes(
+            (source_root / "configs" / "model_manifest.json").read_bytes()
+        )
+        (root / "workflows").mkdir()
+        (root / "workflows" / "manifest.json").write_bytes(
+            (source_root / "workflows" / "manifest.json").read_bytes()
+        )
         self.app = create_app(settings(root), lambda index: GPUStatus(True, index, 24.0, 24.0))
         self.app.context.adapters["wan22-animate"] = ReadyAdapter()
 

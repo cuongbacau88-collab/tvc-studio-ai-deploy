@@ -55,6 +55,7 @@ uploads/
 downloads/
 temp/
 tmp/
+runtime/
 
 # Video Files
 *.mp4

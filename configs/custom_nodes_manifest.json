@@ -1,0 +1,1119 @@
+{
+  "version": 1,
+  "generated_from": "All class_type values in the seven workflows registered by workflows/manifest.json.",
+  "comfyui": {
+    "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+    "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227"
+  },
+  "nodes": [
+    {
+      "class_type": "BasicGuider",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "video_h3_i2v"
+        ],
+        "services": [
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "BasicScheduler",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "motion",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "BatchImagesNode",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "CFGGuider",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein"
+        ],
+        "services": [
+          "background_change",
+          "outfit_change"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "CLIPLoader",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "backup_wan22_fun_inpaint",
+          "motion_scail2",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "backup_test",
+          "motion",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "CLIPTextEncode",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "backup_wan22_fun_inpaint",
+          "motion_scail2",
+          "outfit_flux2_klein"
+        ],
+        "services": [
+          "background_change",
+          "backup_test",
+          "motion",
+          "outfit_change"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "CLIPVisionEncode",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "CLIPVisionLoader",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "CheckpointLoaderSimple",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ColorTransfer",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ComfyMathExpression",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "motion",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ComfySwitchNode",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "CreateVideo",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "backup_wan22_fun_inpaint",
+          "motion_scail2",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "backup_test",
+          "motion",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "EmptyFlux2LatentImage",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein"
+        ],
+        "services": [
+          "background_change",
+          "outfit_change"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "Flux2Scheduler",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein"
+        ],
+        "services": [
+          "background_change",
+          "outfit_change"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "GetImageSize",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "motion_scail2",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "motion",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "GetVideoComponents",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ImageFromBatch",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ImageScaleToTotalPixels",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ImageUpscaleWithModel",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "upscale_realesrgan"
+        ],
+        "services": [
+          "image_upscale"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "KSamplerAdvanced",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "backup_wan22_fun_inpaint"
+        ],
+        "services": [
+          "backup_test"
+        ]
+      },
+      "required": false,
+      "optional": true,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "KSamplerSelect",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "motion_scail2",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "motion",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "LoadImage",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "backup_wan22_fun_inpaint",
+          "motion_scail2",
+          "outfit_flux2_klein",
+          "upscale_realesrgan",
+          "video_h3_first_last",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "backup_test",
+          "image_upscale",
+          "motion",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "LoadVideo",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "LoraLoaderModelOnly",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "backup_wan22_fun_inpaint",
+          "motion_scail2"
+        ],
+        "services": [
+          "backup_test",
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "MiniMaxH3ImageToVideo",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "video_h3_i2v"
+        ],
+        "services": [
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "MinimaxHailuo03FirstLastFrameNode",
+      "classification": "partner_api",
+      "package": "ComfyUI comfy_api_nodes",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "video_h3_first_last"
+        ],
+        "services": [
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [
+        "API_KEY_COMFY_ORG"
+      ],
+      "local_gpu_ready": false,
+      "note": "Official Comfy Partner/API node; execution is billed remote API, not local GPU inference."
+    },
+    {
+      "class_type": "ModelSamplingSD3",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "backup_wan22_fun_inpaint",
+          "motion_scail2"
+        ],
+        "services": [
+          "backup_test",
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "PreviewAny",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "PrimitiveBoolean",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "PrimitiveFloat",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "motion",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "PrimitiveInt",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "RandomNoise",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ReferenceLatent",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein"
+        ],
+        "services": [
+          "background_change",
+          "outfit_change"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ResizeImageMaskNode",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "ResolutionSelector",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "video_h3_i2v"
+        ],
+        "services": [
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "SAM3_VideoTrack",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "SCAIL2ColoredMask",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "SamplerCustom",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "SamplerCustomAdvanced",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "SaveImage",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein",
+          "upscale_realesrgan"
+        ],
+        "services": [
+          "background_change",
+          "image_upscale",
+          "outfit_change"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "SaveVideo",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "backup_wan22_fun_inpaint",
+          "motion_scail2",
+          "video_h3_first_last",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "backup_test",
+          "motion",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "UNETLoader",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "backup_wan22_fun_inpaint",
+          "motion_scail2",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "backup_test",
+          "motion",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "UpscaleModelLoader",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "upscale_realesrgan"
+        ],
+        "services": [
+          "image_upscale"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "VAEDecode",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "backup_wan22_fun_inpaint",
+          "motion_scail2",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "backup_test",
+          "motion",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "VAEDecodeAudio",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "video_h3_i2v"
+        ],
+        "services": [
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "VAEEncode",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "outfit_flux2_klein"
+        ],
+        "services": [
+          "background_change",
+          "outfit_change"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "VAELoader",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "background_flux2_klein",
+          "backup_wan22_fun_inpaint",
+          "motion_scail2",
+          "outfit_flux2_klein",
+          "video_h3_i2v"
+        ],
+        "services": [
+          "background_change",
+          "backup_test",
+          "motion",
+          "outfit_change",
+          "video_generation"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "WanFunInpaintToVideo",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "backup_wan22_fun_inpaint"
+        ],
+        "services": [
+          "backup_test"
+        ]
+      },
+      "required": false,
+      "optional": true,
+      "credential_env": [],
+      "local_gpu_ready": true
+    },
+    {
+      "class_type": "WanSCAILToVideo",
+      "classification": "core",
+      "package": "ComfyUI",
+      "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "b963f4ad210a42841ab23dfc28a84143a0cce227",
+      "source_status": "resolved",
+      "required_by": {
+        "workflows": [
+          "motion_scail2"
+        ],
+        "services": [
+          "motion"
+        ]
+      },
+      "required": true,
+      "optional": false,
+      "credential_env": [],
+      "local_gpu_ready": true
+    }
+  ]
+}
