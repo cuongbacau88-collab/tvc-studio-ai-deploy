@@ -1,2 +1,3 @@
+# Railpack requires direct dependencies here; nested -r files are unavailable in its install layer.
 PyYAML>=6.0,<7
 uvicorn>=0.30,<1
