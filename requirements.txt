@@ -1,1 +1,2 @@
--r requirements-server.txt
+PyYAML>=6.0,<7
+uvicorn>=0.30,<1
