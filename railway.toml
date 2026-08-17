@@ -1,0 +1,6 @@
+[build]
+builder = "RAILPACK"
+
+[deploy]
+# Railpack cannot infer this app because its ASGI module is not a root main.py.
+startCommand = "./start.sh"
