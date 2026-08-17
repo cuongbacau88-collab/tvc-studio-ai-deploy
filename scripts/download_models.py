@@ -10,6 +10,7 @@ import sys
 import time
 from typing import Any
 from urllib.error import HTTPError
+from urllib.parse import unquote, urlparse
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +28,66 @@ def valid_existing(path: Path, expected: str | None) -> bool:
     if not path.is_file() or path.stat().st_size == 0:
         return False
     return expected is None or sha256(path) == expected
+
+
+def huggingface_source(source_url: str) -> tuple[str, str, str] | None:
+    """Return repo_id, filename, and revision for a Hugging Face resolve URL."""
+    parsed = urlparse(source_url)
+    if parsed.hostname not in {"huggingface.co", "www.huggingface.co"}:
+        return None
+    parts = [unquote(part) for part in parsed.path.split("/") if part]
+    if len(parts) < 5 or parts[2] != "resolve":
+        raise ValueError(f"unsupported Hugging Face model URL: {source_url}")
+    return "/".join(parts[:2]), "/".join(parts[4:]), parts[3]
+
+
+def huggingface_cache_dir(comfyui_root: Path) -> Path:
+    """Locate the HF cache on the persistent volume unless explicitly configured."""
+    hf_home = os.getenv("HF_HOME", "").strip()
+    if hf_home:
+        return Path(hf_home).expanduser() / "hub"
+    xdg_cache = os.getenv("XDG_CACHE_HOME", "").strip()
+    if xdg_cache:
+        return Path(xdg_cache).expanduser() / "huggingface" / "hub"
+    return comfyui_root.parent / ".cache" / "huggingface" / "hub"
+
+
+def promote_verified(source: Path, destination: Path, expected: str | None) -> None:
+    """Copy a verified cache file to a same-filesystem temporary, then rename it."""
+    if not valid_existing(source, expected):
+        actual = sha256(source) if source.is_file() else "missing"
+        raise RuntimeError(
+            f"checksum validation failed for cached {destination.name}: {actual}"
+        )
+    partial = destination.with_name(destination.name + ".part")
+    with source.open("rb") as cached, partial.open("wb") as output:
+        while chunk := cached.read(8 * 1024 * 1024):
+            output.write(chunk)
+        output.flush()
+        os.fsync(output.fileno())
+    if not valid_existing(partial, expected):
+        actual = sha256(partial) if partial.is_file() else "missing"
+        partial.unlink(missing_ok=True)
+        raise RuntimeError(
+            f"checksum validation failed before promotion of {destination.name}: {actual}"
+        )
+    os.replace(partial, destination)
+
+
+def download_huggingface(model: dict[str, Any], destination: Path,
+                         cache_dir: Path, force_download: bool = False) -> None:
+    source = huggingface_source(model["source_url"])
+    if source is None:
+        raise ValueError("download_huggingface requires a huggingface.co URL")
+    repo_id, filename, revision = source
+    from huggingface_hub import hf_hub_download
+
+    cached = Path(hf_hub_download(
+        repo_id=repo_id, filename=filename, revision=revision,
+        cache_dir=str(cache_dir), token=os.getenv("HF_TOKEN", "").strip() or None,
+        force_download=force_download,
+    ))
+    promote_verified(cached, destination, model.get("sha256"))
 
 
 def download_once(model: dict[str, Any], destination: Path,
@@ -50,14 +111,22 @@ def download_once(model: dict[str, Any], destination: Path,
     with response:
         append = offset > 0 and getattr(response, "status", None) == 206
         mode = "ab" if append else "wb"
+        expected_bytes = response.headers.get("Content-Length")
+        received = 0
         with partial.open(mode) as output:
             while True:
                 chunk = response.read(8 * 1024 * 1024)
                 if not chunk:
                     break
                 output.write(chunk)
+                received += len(chunk)
             output.flush()
             os.fsync(output.fileno())
+        if expected_bytes is not None and received != int(expected_bytes):
+            raise RuntimeError(
+                f"incomplete HTTP response for {model['filename']}: "
+                f"received {received} of {expected_bytes} bytes"
+            )
     expected = model.get("sha256")
     if not valid_existing(partial, expected):
         actual = sha256(partial) if partial.exists() else "missing"
@@ -86,15 +155,29 @@ def download(model: dict[str, Any], root: Path, retries: int,
         return COMPLETE
     destination.parent.mkdir(parents=True, exist_ok=True)
     partial = destination.with_name(destination.name + ".part")
-    if partial.is_file():
+    hf_source = huggingface_source(model["source_url"])
+    cache_dir = huggingface_cache_dir(root)
+    if partial.is_file() and hf_source is None:
         print(f"RESUME: {human_bytes(partial.stat().st_size)}")
+    force_hf_download = False
     for attempt in range(1, retries + 1):
         print(f"ATTEMPT {attempt}/{retries}")
         try:
-            download_once(model, destination, timeout)
+            if hf_source is not None:
+                cache_dir.mkdir(parents=True, exist_ok=True)
+                download_huggingface(
+                    model, destination, cache_dir, force_download=force_hf_download,
+                )
+            else:
+                download_once(model, destination, timeout)
             print(f"COMPLETE: {destination}")
             return COMPLETE
         except Exception as exc:
+            if (
+                hf_source is not None
+                and str(exc).startswith("checksum validation failed for cached ")
+            ):
+                force_hf_download = True
             print(
                 f"ATTEMPT FAILED {attempt}/{retries}: {type(exc).__name__}: {exc}",
                 file=sys.stderr,

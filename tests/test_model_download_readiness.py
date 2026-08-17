@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class Response(io.BytesIO):
     status = 206
+    headers = {}
 
     def __enter__(self):
         return self
@@ -137,6 +138,70 @@ class DiskPreflightTests(unittest.TestCase):
 
 
 class DownloaderTests(unittest.TestCase):
+    def test_huggingface_url_is_parsed(self):
+        self.assertEqual(
+            ("org/repo", "folder/model.bin", "main"),
+            download_models.huggingface_source(
+                "https://huggingface.co/org/repo/resolve/main/folder/model.bin"
+            ),
+        )
+
+    def test_truncated_hf_download_cannot_be_promoted_to_final(self):
+        content = b"complete-model"
+        model = {
+            "filename": "model.bin",
+            "source_url": "https://huggingface.co/org/repo/resolve/main/model.bin",
+            "sha256": hashlib.sha256(content).hexdigest(),
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory) / "model.bin"
+            cached = Path(directory) / "cache" / "truncated.bin"
+            cached.parent.mkdir()
+            cached.write_bytes(content[:8])
+            hub_download = unittest.mock.Mock(return_value=str(cached))
+            with patch.dict(sys.modules, {"huggingface_hub": unittest.mock.Mock(
+                hf_hub_download=hub_download
+            )}):
+                with self.assertRaises(RuntimeError):
+                    download_models.download_huggingface(
+                        model, destination, Path(directory) / "cache"
+                    )
+            self.assertFalse(destination.exists())
+
+    def test_valid_cached_hf_download_is_reused_and_promoted(self):
+        content = b"complete-model"
+        model = {
+            "filename": "model.bin",
+            "source_url": "https://huggingface.co/org/repo/resolve/main/model.bin",
+            "sha256": hashlib.sha256(content).hexdigest(),
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            cached = Path(directory) / "cache" / "model.bin"
+            cached.parent.mkdir()
+            cached.write_bytes(content)
+            destination = Path(directory) / "final" / "model.bin"
+            destination.parent.mkdir()
+            hub_download = unittest.mock.Mock(return_value=str(cached))
+            with patch.dict(sys.modules, {"huggingface_hub": unittest.mock.Mock(
+                hf_hub_download=hub_download
+            )}):
+                download_models.download_huggingface(
+                    model, destination, Path(directory) / "cache"
+                )
+            self.assertEqual(content, destination.read_bytes())
+            hub_download.assert_called_once()
+
+    def test_final_sha256_must_match_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "cached.bin"
+            destination = Path(directory) / "final.bin"
+            source.write_bytes(b"wrong")
+            with self.assertRaises(RuntimeError):
+                download_models.promote_verified(
+                    source, destination, hashlib.sha256(b"expected").hexdigest()
+                )
+            self.assertFalse(destination.exists())
+
     def test_resume_uses_part_file_then_atomic_rename_and_checksum(self):
         content = b"complete-model"
         checksum = hashlib.sha256(content).hexdigest()
@@ -188,6 +253,22 @@ class DownloaderTests(unittest.TestCase):
                 with self.assertRaises(TimeoutError):
                     download_models.download_once(model, destination, timeout=1)
             self.assertEqual(content, partial.read_bytes())
+
+    def test_preflight_stays_false_until_physical_final_is_valid(self):
+        content = b"valid-model"
+        model = DiskPreflightTests.model("model.bin", content)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cache = root / ".cache" / "model.bin"
+            cache.parent.mkdir()
+            cache.write_bytes(content)
+            self.assertFalse(disk_summary([model], root)["ready"])
+            destination = root / model["comfyui_subdir"] / model["filename"]
+            destination.parent.mkdir(parents=True)
+            destination.write_bytes(b"truncated")
+            self.assertFalse(disk_summary([model], root)["ready"])
+            destination.write_bytes(content)
+            self.assertTrue(disk_summary([model], root)["ready"])
 
     def test_failed_model_does_not_prevent_later_model_attempt_and_exit_is_nonzero(self):
         first_content, second_content = b"first", b"second"
