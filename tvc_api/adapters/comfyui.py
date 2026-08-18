@@ -17,6 +17,8 @@ from .base import ModelAdapter, Readiness
 from ..errors import APIError
 from ..workflows import WorkflowRegistry
 
+DEFAULT_COMFY_TIMEOUT_SECONDS = 180.0
+
 
 class ComfyWorkflowAdapter(ModelAdapter):
     def __init__(self, spec, repo_root: Path, operation: str | None = None) -> None:
@@ -56,6 +58,14 @@ class ComfyWorkflowAdapter(ModelAdapter):
             raise APIError("comfyui_unavailable", "COMFYUI_URL is not configured", 503)
         return await asyncio.to_thread(self._run_sync, inputs, parameters, output_dir)
 
+    def _interrupt_comfyui(self) -> None:
+        try:
+            req = Request(f"{self.base_url}/interrupt", data=b"{}", headers={"Content-Type": "application/json"})
+            with urlopen(req, timeout=5) as resp:
+                resp.read()
+        except Exception:
+            pass
+
     def _run_sync(self, inputs: dict[str, Any], parameters: dict[str, Any],
                   output_dir: Path) -> dict[str, Any]:
         operation = self._operation(parameters)
@@ -70,27 +80,46 @@ class ComfyWorkflowAdapter(ModelAdapter):
                     "API_KEY_COMFY_ORG is required for H3 First/Last Frame",
                     503,
                 )
-            object_info = json.loads(self._request("/object_info/MinimaxHailuo03FirstLastFrameNode"))
+            try:
+                object_info = json.loads(self._request("/object_info/MinimaxHailuo03FirstLastFrameNode"))
+            except Exception as exc:
+                raise APIError("comfyui_unavailable", f"Cannot query ComfyUI object info: {exc}", 503) from exc
             if "MinimaxHailuo03FirstLastFrameNode" not in object_info:
                 raise APIError(
                     "partner_node_unavailable",
                     "ComfyUI runtime does not provide MinimaxHailuo03FirstLastFrameNode",
                     503,
                 )
+
         uploaded: dict[str, str] = {}
         for external, target in spec.get("inputs", {}).items():
             if target.get("kind") == "upload" and external in normalized:
                 uploaded[external] = self._upload(Path(str(normalized[external])))
+
         workflow, spec = self.workflows.bind(
             operation, self.spec.id, normalized, parameters, uploaded
         )
+
         prompt_id = self._submit_prompt(workflow, partner_key)
-        result = self._wait_for_output(prompt_id, spec)
+
+        try:
+            result = self._wait_for_output(prompt_id, spec)
+        except Exception:
+            self._interrupt_comfyui()
+            raise
+
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / Path(result["filename"]).name
-        output_path.write_bytes(self._view(result))
+        try:
+            output_path.write_bytes(self._view(result))
+        except Exception as exc:
+            self._interrupt_comfyui()
+            raise APIError("comfyui_output_fetch_failed", f"Failed to retrieve output media: {exc}", 502) from exc
+
         if output_path.stat().st_size == 0:
+            self._interrupt_comfyui()
             raise APIError("invalid_output", "ComfyUI returned an empty output", 502)
+
         return {
             "output_path": str(output_path),
             "output_type": spec["outputs"][0]["type"],
@@ -121,13 +150,13 @@ class ComfyWorkflowAdapter(ModelAdapter):
         return values
 
     def _request(self, path: str, data: bytes | None = None,
-                 headers: dict[str, str] | None = None) -> bytes:
+                 headers: dict[str, str] | None = None, timeout: float = 30.0) -> bytes:
         request = Request(f"{self.base_url}{path}", data=data, headers=headers or {})
         try:
-            with urlopen(request, timeout=30) as response:
+            with urlopen(request, timeout=timeout) as response:
                 return response.read()
         except Exception as exc:
-            raise APIError("comfyui_unavailable", f"ComfyUI request failed: {exc}", 503) from exc
+            raise APIError("comfyui_unavailable", f"ComfyUI request failed on {path}: {exc}", 503) from exc
 
     def _upload(self, path: Path) -> str:
         if not path.is_file():
@@ -135,13 +164,19 @@ class ComfyWorkflowAdapter(ModelAdapter):
         boundary = f"----tvc-{uuid4().hex}"
         content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
         body = (
-            f"--{boundary}\\r\\n"
-            f'Content-Disposition: form-data; name="image"; filename="{path.name}"\\r\\n'
-            f"Content-Type: {content_type}\\r\\n\\r\\n"
-        ).encode() + path.read_bytes() + f"\\r\\n--{boundary}--\\r\\n".encode()
-        payload = json.loads(self._request(
-            "/upload/image", body, {"Content-Type": f"multipart/form-data; boundary={boundary}"}
-        ))
+            f"--{boundary}\r\n"
+            f'Content-Disposition: form-data; name="image"; filename="{path.name}"\r\n'
+            f"Content-Type: {content_type}\r\n\r\n"
+        ).encode() + path.read_bytes() + f"\r\n--{boundary}--\r\n".encode()
+        try:
+            payload = json.loads(self._request(
+                "/upload/image", body, {"Content-Type": f"multipart/form-data; boundary={boundary}"}
+            ))
+        except APIError:
+            raise
+        except Exception as exc:
+            raise APIError("comfyui_upload_failed", f"Failed to upload asset to ComfyUI: {exc}", 502) from exc
+
         name = payload.get("name")
         if not isinstance(name, str) or not name:
             raise APIError("comfyui_upload_failed", "ComfyUI did not return an upload name", 502)
@@ -153,9 +188,14 @@ class ComfyWorkflowAdapter(ModelAdapter):
         if partner_key:
             payload["extra_data"] = {"api_key_comfy_org": partner_key}
         body = json.dumps(payload).encode()
-        payload = json.loads(self._request(
-            "/prompt", body, {"Content-Type": "application/json"}
-        ))
+        try:
+            response_data = self._request("/prompt", body, {"Content-Type": "application/json"})
+            payload = json.loads(response_data)
+        except APIError:
+            raise
+        except Exception as exc:
+            raise APIError("comfyui_prompt_failed", f"Failed to submit prompt to ComfyUI (port 8188): {exc}", 502) from exc
+
         prompt_id = payload.get("prompt_id")
         if not isinstance(prompt_id, str) or not prompt_id:
             detail = payload.get("error") or payload.get("node_errors") or "missing prompt_id"
@@ -163,13 +203,40 @@ class ComfyWorkflowAdapter(ModelAdapter):
         return prompt_id
 
     def _wait_for_output(self, prompt_id: str, spec: dict[str, Any]) -> dict[str, Any]:
+        timeout_seconds = float(os.getenv("GPU_TASK_TIMEOUT_SECONDS", str(DEFAULT_COMFY_TIMEOUT_SECONDS)))
+        start_time = time.time()
+        poll_interval = 1.0
         while True:
-            history = json.loads(self._request(f"/history/{prompt_id}"))
+            elapsed = time.time() - start_time
+            if elapsed > timeout_seconds:
+                self._interrupt_comfyui()
+                raise APIError(
+                    "comfyui_timeout",
+                    f"ComfyUI job execution exceeded maximum allowed timeout of {int(timeout_seconds)}s (3 minutes). GPU has been freed.",
+                    504,
+                )
+            try:
+                history_bytes = self._request(f"/history/{prompt_id}", timeout=10.0)
+                history = json.loads(history_bytes)
+            except APIError:
+                if time.time() - start_time > timeout_seconds:
+                    raise
+                time.sleep(poll_interval)
+                continue
+            except Exception as exc:
+                if time.time() - start_time > timeout_seconds:
+                    self._interrupt_comfyui()
+                    raise APIError("comfyui_timeout", f"ComfyUI polling timed out: {exc}", 504) from exc
+                time.sleep(poll_interval)
+                continue
+
             record = history.get(prompt_id)
             if isinstance(record, dict):
                 status = record.get("status", {})
                 if status.get("status_str") == "error":
-                    raise APIError("comfyui_execution_failed", "ComfyUI workflow execution failed", 502)
+                    messages = status.get("messages", [])
+                    self._interrupt_comfyui()
+                    raise APIError("comfyui_execution_failed", f"ComfyUI workflow execution failed: {messages}", 502)
                 outputs = record.get("outputs", {})
                 for mapping in spec["outputs"]:
                     node_output = outputs.get(str(mapping["node_id"]), {})
@@ -178,8 +245,9 @@ class ComfyWorkflowAdapter(ModelAdapter):
                         if isinstance(values, list) and values and isinstance(values[0], dict):
                             return values[0]
                 if status.get("completed"):
+                    self._interrupt_comfyui()
                     raise APIError("invalid_output", "Mapped ComfyUI output node returned no file", 502)
-            time.sleep(1)
+            time.sleep(poll_interval)
 
     def _view(self, output: dict[str, Any]) -> bytes:
         filename = output.get("filename")

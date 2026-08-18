@@ -21,7 +21,7 @@ class Settings:
     output_dir: Path = REPO_ROOT / "outputs"
     upload_dir: Path = REPO_ROOT / "uploads"
     gpu_index: int = 0
-    gpu_task_timeout_seconds: int = 3600
+    gpu_task_timeout_seconds: int = 180
     max_queue_size: int = 100
     sequential_gpu_queue: bool = True
     service_token: str = ""
@@ -37,7 +37,7 @@ class Settings:
             output_dir=(root / os.getenv("GPU_OUTPUT_DIR", os.getenv("OUTPUT_DIR", "outputs"))).resolve(),
             upload_dir=(root / os.getenv("GPU_UPLOAD_DIR", os.getenv("UPLOAD_DIR", "uploads"))).resolve(),
             gpu_index=int(gpu_value or "0"),
-            gpu_task_timeout_seconds=int(os.getenv("GPU_TASK_TIMEOUT_SECONDS", "3600")),
+            gpu_task_timeout_seconds=int(os.getenv("GPU_TASK_TIMEOUT_SECONDS", "180")),
             max_queue_size=int(os.getenv("GPU_QUEUE_MAX_SIZE", "100")),
             sequential_gpu_queue=_bool("SEQUENTIAL_GPU_QUEUE", True),
             service_token=os.getenv("GPU_API_SERVICE_TOKEN", "").strip(),

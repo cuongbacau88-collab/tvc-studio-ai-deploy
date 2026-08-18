@@ -12,11 +12,11 @@ from .queue import SequentialGPUQueue
 
 
 class GPUWorker:
-    def __init__(self, queue: SequentialGPUQueue, adapters: dict[str, ModelAdapter], output_root: Path, timeout_seconds: int) -> None:
+    def __init__(self, queue: SequentialGPUQueue, adapters: dict[str, ModelAdapter], output_root: Path, timeout_seconds: int = 180) -> None:
         self.queue = queue
         self.adapters = adapters
         self.output_root = output_root
-        self.timeout_seconds = timeout_seconds
+        self.timeout_seconds = timeout_seconds or 180
         self._task: asyncio.Task[None] | None = None
 
     def start(self) -> None:
@@ -37,7 +37,13 @@ class GPUWorker:
             job = await self.queue.next()
             job.status = "running"
             job.started_at = now()
-            adapter = self.adapters[job.request.model_id]
+            adapter = self.adapters.get(job.request.model_id)
+            if adapter is None:
+                job.status = "failed"
+                job.error = {"code": "model_not_found", "message": f"Model adapter {job.request.model_id} is not configured"}
+                job.finished_at = now()
+                self.queue.done()
+                continue
             try:
                 output_dir = self.output_root / job.id
                 job.result = await asyncio.wait_for(
@@ -47,13 +53,16 @@ class GPUWorker:
                 job.status = "succeeded"
             except asyncio.TimeoutError:
                 job.status = "failed"
-                job.error = {"code": "inference_timeout", "message": "GPU task timed out"}
+                job.error = {
+                    "code": "inference_timeout",
+                    "message": f"GPU task exceeded maximum timeout of {self.timeout_seconds}s (3 minutes). GPU queue has been freed.",
+                }
             except APIError as exc:
                 job.status = "failed"
                 job.error = exc.as_dict()["error"]
-            except Exception:
+            except Exception as exc:
                 job.status = "failed"
-                job.error = {"code": "inference_crash", "message": "Model task failed"}
+                job.error = {"code": "inference_crash", "message": f"Model task execution failed: {exc}"}
             finally:
                 job.finished_at = now()
                 self.queue.done()

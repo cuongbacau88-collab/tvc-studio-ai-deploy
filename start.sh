@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -Eeuo pipefail
 
 # One server process is mandatory: it owns the one shared sequential GPU queue.
